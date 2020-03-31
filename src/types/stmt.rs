@@ -16,7 +16,7 @@ pub enum Stmt {
     },
     Set {
         lval: LVal,
-        rval: Box<Exp>,
+        named: Box<Exp>,
     },
     Return {
         value: Box<Exp>,
@@ -42,10 +42,10 @@ pub mod constructors {
         }
     }
 
-    pub fn set_(lval: LVal, rval: Exp) -> Stmt {
+    pub fn set_(lval: LVal, named: Exp) -> Stmt {
         Stmt::Set {
             lval,
-            rval: Box::new(rval),
+            named: Box::new(named),
         }
     }
 

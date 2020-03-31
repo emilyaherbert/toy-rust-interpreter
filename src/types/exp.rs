@@ -3,20 +3,6 @@ use crate::types::stmt::Stmt;
 use std::collections::HashMap;
 
 #[derive(PartialEq, Debug, Clone)]
-pub enum Op2 {
-    Add,
-    Sub,
-    StrictEq,
-    StrictNotEq,
-    GT,
-    LT,
-    GTE,
-    LTE,
-    And,
-    Or
-}
-
-#[derive(PartialEq, Debug, Clone)]
 pub enum Exp {
     Number {
         value: f64,
@@ -52,6 +38,20 @@ pub enum Exp {
         fun: Box<Exp>,
         fun_args: Vec<Exp>,
     },
+}
+
+#[derive(PartialEq, Debug, Clone)]
+pub enum Op2 {
+    Add,
+    Sub,
+    StrictEq,
+    StrictNotEq,
+    GT,
+    LT,
+    GTE,
+    LTE,
+    And,
+    Or
 }
 
 pub mod constructors {

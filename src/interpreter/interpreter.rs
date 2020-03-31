@@ -33,6 +33,16 @@ impl Interpreter {
                 state.add_value(name, named2);
                 srnothing_()
             },
+            Stmt::Set { lval, named } => {
+                match lval {
+                    LVal::Identifier { name } => {
+                        let named2 = self.eval_exp(named, state);
+                        state.set_value(name, named2);
+                        srnothing_()
+                    },
+                    _ => unimplemented!()
+                }
+            },
             Stmt::Return { value } => {
                 let value2 = self.eval_exp(value, state);
                 srreturn_(value2)
