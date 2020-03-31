@@ -21,13 +21,9 @@ pub enum Exp {
     Number {
         value: f64,
     },
-    Boolean {
-        value: bool,
-    },
     Identifier {
         name: String,
     },
-    Undefined {},
     BinOp {
         op: Op2,
         e1: Box<Exp>,
@@ -62,16 +58,8 @@ pub mod constructors {
     use crate::types::exp::{Op2, Exp};
     use crate::types::stmt::Stmt;
 
-    pub fn undefined_() -> Exp {
-        Exp::Undefined {}
-    }
-
     pub fn number_(value: f64) -> Exp {
         Exp::Number { value }
-    }
-
-    pub fn boolean_(value: bool) -> Exp {
-        Exp::Boolean { value }
     }
 
     pub fn identifier_(id: &str) -> Exp {
