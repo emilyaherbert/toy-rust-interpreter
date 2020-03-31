@@ -33,14 +33,11 @@ impl Interpreter {
                 state.add_value(name, named2);
                 srnothing_()
             }
-            Stmt::Set { lval, named } => match lval {
-                LVal::Identifier { name } => {
-                    let named2 = self.eval_exp(named, state);
-                    state.set_value(name, named2);
-                    srnothing_()
-                }
-                _ => unimplemented!(),
-            },
+            Stmt::Set { lval, named } => {
+                let named = self.eval_exp(named, state);
+                self.set_lval(lval, named, state);
+                srnothing_()
+            }
             Stmt::Return { value } => {
                 let value2 = self.eval_exp(value, state);
                 srreturn_(value2)
@@ -75,6 +72,40 @@ impl Interpreter {
                 }
             }
             _ => unimplemented!(),
+        }
+    }
+
+    fn set_lval(&mut self, lval: &LVal, rval: Value, state: &mut State) {
+        match lval {
+            LVal::Identifier { name } => {
+                state.set_value(name, rval);
+            }
+            LVal::Index { e, index } => {
+                let name = self.get_id(e);
+                let index_ = &self.eval_exp(index, state);
+                let e_ = state.borrow_mut_value(&name);
+                match e_ {
+                    Value::Array { values } => {
+                        if let Value::Number { value: y } = index_ {
+                            let y_: f64 = *y;
+                            if (y_ >= 0.0) && (y_ <= usize::max_value() as f64) {
+                                values[y_ as usize] = rval;
+                            }
+                        } else {
+                            unimplemented!("indexing with value {:?}", index_);
+                        }
+                    }
+                    _ => (),
+                }
+            }
+            _ => unimplemented!(),
+        }
+    }
+
+    fn get_id(&mut self, exp: &Exp) -> String {
+        match exp {
+            Exp::Identifier { name } => name.to_owned(),
+            _ => "".to_owned(),
         }
     }
 }

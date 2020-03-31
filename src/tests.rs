@@ -71,4 +71,24 @@ mod tests {
         let test_runner = TestRunner::new();
         test_runner.test(ir, expected_output);
     }
+
+    #[test]
+    fn arrays2() {
+        let ir = vec![
+            let_("hi", array_(vec![number_(1.0), number_(2.0)])),
+            set_(
+                LVal::Index {
+                    e: Box::new(identifier_("hi")),
+                    index: Box::new(number_(1.0))
+                },
+                number_(10.0),
+            ),
+            return_(index_(identifier_("hi"), number_(1.0)))
+        ];
+
+        let expected_output = vnumber_(10.0);
+
+        let test_runner = TestRunner::new();
+        test_runner.test(ir, expected_output);
+    }
 }
