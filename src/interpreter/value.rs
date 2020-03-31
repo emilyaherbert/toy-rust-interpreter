@@ -3,6 +3,7 @@ use crate::types::stmt::Stmt;
 
 #[derive(PartialEq, Debug, Clone)]
 pub enum Value {
+    Undefined { },
     Number {
         value: f64,
     },
@@ -26,6 +27,10 @@ pub mod constructors {
     use crate::interpreter::state::Env;
     use crate::interpreter::value::Value;
     use crate::types::stmt::Stmt;
+
+    pub fn vundefined_() -> Value {
+        Value::Undefined { }
+    }
 
     pub fn vnumber_(value: f64) -> Value {
         Value::Number { value }

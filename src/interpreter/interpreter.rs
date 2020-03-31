@@ -53,6 +53,27 @@ impl Interpreter {
         match exp {
             Exp::Number { value } => vnumber_(*value),
             Exp::Identifier { name } => state.get_value(name),
+            Exp::Array { exps } => {
+                let mut values2: Vec<Value> = vec!();
+                for v in exps {
+                    values2.push(self.eval_exp(v, state));
+                }
+                varray_(values2)
+            },
+            Exp::Index { e1, e2 } => {
+                let array = self.eval_exp(e1, state);
+                let index = self.eval_exp(e2, state);
+                match (array, index) {
+                    (Value::Array { values }, Value::Number { value }) => {
+                        if (value >= 0.0) && (value <= usize::max_value() as f64) {
+                            values[value as usize].to_owned()
+                        } else {
+                            vundefined_()
+                        }
+                    },
+                    _ => panic!("Expected array and index.")
+                }
+            }
             _ => unimplemented!(),
         }
     }
