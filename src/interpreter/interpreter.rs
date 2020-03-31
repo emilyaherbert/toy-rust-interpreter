@@ -15,7 +15,7 @@ impl Interpreter {
         }
     }
 
-    pub fn eval(&mut self, mut ir: Vec<Stmt>, input: Exp) -> Value {
+    pub fn eval(&mut self, mut ir: Vec<Stmt>) -> Value {
         unimplemented!()
     }
 

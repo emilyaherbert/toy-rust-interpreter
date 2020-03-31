@@ -10,9 +10,9 @@ impl TestRunner {
         TestRunner {}
     }
 
-    pub fn test(&self, ir: Vec<Stmt>, input: Exp, expected_output: Value) {
+    pub fn test(&self, ir: Vec<Stmt>, expected_output: Value) {
         let mut interpreter = Interpreter::new();
-        let res = interpreter.eval(ir, input);
+        let res = interpreter.eval(ir);
         assert_eq!(res, expected_output);
     }
 }
