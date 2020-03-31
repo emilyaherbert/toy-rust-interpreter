@@ -51,11 +51,11 @@ pub enum Op2 {
     GTE,
     LTE,
     And,
-    Or
+    Or,
 }
 
 pub mod constructors {
-    use crate::types::exp::{Op2, Exp};
+    use crate::types::exp::{Exp, Op2};
     use crate::types::stmt::Stmt;
 
     pub fn number_(value: f64) -> Exp {

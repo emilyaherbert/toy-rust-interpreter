@@ -12,10 +12,7 @@ mod tests {
 
     #[test]
     fn let_test() {
-        let ir = vec![
-            let_("hi", number_(5.0)),
-            return_(identifier_("hi"))
-        ];
+        let ir = vec![let_("hi", number_(5.0)), return_(identifier_("hi"))];
 
         let expected_output = vnumber_(5.0);
 
@@ -27,8 +24,13 @@ mod tests {
     fn set_test() {
         let ir = vec![
             let_("hi", number_(5.0)),
-            set_(LVal::Identifier{ name: "hi".to_string() } , number_(10.0)),
-            return_(identifier_("hi"))
+            set_(
+                LVal::Identifier {
+                    name: "hi".to_string(),
+                },
+                number_(10.0),
+            ),
+            return_(identifier_("hi")),
         ];
 
         let expected_output = vnumber_(10.0);
