@@ -1,0 +1,33 @@
+use crate::interpreter::value::Value;
+
+use std::collections::HashMap;
+
+
+pub struct Env {
+    pub elems: HashMap<String, Value>
+}
+
+impl Env {
+    pub fn new() -> Env {
+        Env {
+            elems: HashMap::new()
+        }
+    }
+
+    pub fn add_value(&mut self, name: &str, value: Value) {
+        self.elems.insert(name.to_string(), value);
+    }
+
+    pub fn set_value(&mut self, name: &str, value: Value) {
+        let addr = self.elems.get(name).expect("Name not found.");
+        self.elems.insert(name.to_string(), value);
+    }
+
+    pub fn get_value(&self, name: &str) -> Value {
+        self.elems.get(name).map(|e| e.to_owned()).expect("Name not found.")
+    }
+
+    pub fn borrow_mut_value(&mut self, name: &str) -> &mut Value {
+        self.elems.get_mut(name).expect("Name not found.")
+    }
+}
