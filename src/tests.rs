@@ -138,6 +138,24 @@ mod tests {
         let arena = Bump::new();
         test_runner.test(&arena, ir, expected_output);
     }
+    
+    #[test]
+    fn clos2() {
+        let ir = vec![
+            let_("x", number_(10.0)),
+            let_("F", function_(vec!["y".to_string()], vec![
+                return_(binop_(Op2::Add, identifier_("x"), identifier_("y")))
+            ])),
+            set_(LVal::Identifier { name: "x".to_string() }, number_(20000.0)),
+            return_(fun_app_(identifier_("F"), vec![number_(1.0)]))
+        ];
+
+        let expected_output = vnumber_(20001.0);
+
+        let test_runner = TestRunner::new();
+        let arena = Bump::new();
+        test_runner.test(&arena, ir, expected_output);
+    }
 
     #[test]
     fn binop() {
