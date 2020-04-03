@@ -52,6 +52,14 @@ impl Interpreter {
         match exp {
             Exp::Number { value } => vnumber_(*value),
             Exp::Identifier { name } => env.get_value(name),
+            Exp::BinOp { op, e1, e2 } => {
+                let e1 = self.eval_exp(e1, env, arena);
+                let e2 = self.eval_exp(e2, env, arena);
+                match (op, e1, e2) {
+                    (Op2::Add, Value::Number { value: v1 }, Value::Number { value: v2 }) => vnumber_(v1+v2),
+                    _ => unimplemented!()
+                }
+            },
             Exp::Array { exps } => {
                 let mut values2: Vec<Value<'a>> = vec!();
                 for v in exps {
