@@ -72,6 +72,31 @@ impl Interpreter {
                     },
                     _ => panic!("Expected array and index.")
                 }
+            },
+            Exp::Function { params, body } => {
+                vclos_(arena, env.clone(), params.to_vec(), body.to_vec())
+            },
+            Exp::FunApp { fun, fun_args } => {
+                let clos = self.eval_exp(fun, env, arena);
+                let mut fun_args2: Vec<Value> = vec!();
+                for a in fun_args.into_iter() {
+                    fun_args2.push(self.eval_exp(&a, env, arena));
+                }
+                match clos {
+                    Value::Clos { env: fun_env, params, body } => {
+                        let mut fun_env = fun_env.clone();
+                        let foo = params.iter()
+                            .zip(fun_args2.into_iter())
+                            .for_each(|(p, a)| {
+                                fun_env.add_value(p, a);
+                            });
+                        match self.eval_stmts(body, &mut fun_env, arena) {
+                            StmtResult::Return { value } => value,
+                            StmtResult::Nothing => vundefined_()
+                        }
+                    },
+                    _ => panic!("Expected env.")
+                }
             }
             _ => unimplemented!(),
         }

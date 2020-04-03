@@ -120,4 +120,22 @@ mod tests {
         let arena = Bump::new();
         test_runner.test(&arena, ir, expected_output);
     }
+
+    #[test]
+    fn clos() {
+        let ir = vec![
+            let_("F", function_(vec!["x".to_string()], vec![
+                return_(index_(identifier_("x"), number_(1.0)))
+            ])),
+            let_("foo", array_(vec![number_(1.0), number_(101.0)])),
+            let_("bar", fun_app_(identifier_("F"), vec![identifier_("foo")])),
+            return_(identifier_("bar"))
+        ];
+
+        let expected_output = vnumber_(101.0);
+
+        let test_runner = TestRunner::new();
+        let arena = Bump::new();
+        test_runner.test(&arena, ir, expected_output);
+    }
 }

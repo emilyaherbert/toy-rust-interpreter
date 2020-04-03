@@ -19,13 +19,11 @@ pub enum Value<'a> {
     Array {
         values: &'a RefCell<Vec<'a, Value<'a>>>
     },
-    /*
     Clos {
         env: Env<'a>,
-        params: Vec<String>,
-        body: Vec<Stmt>,
+        params: &'a Vec<'a, String>,
+        body: &'a Vec<'a, Stmt>,
     },
-    */
 }
 
 pub mod constructors {
@@ -53,11 +51,17 @@ pub mod constructors {
         Value::Boolean { value }
     }
 
-    /*
-    pub fn vclos_<'a>(env: Env<'a>, params: Vec<String>, body: Vec<Stmt>) -> Value<'a> {
-        Value::Clos { env, params, body }
+    pub fn vclos_<'a>(arena: &'a Bump, env: Env<'a>, params: std::vec::Vec<String>, body: std::vec::Vec<Stmt>) -> Value<'a> {
+        let mut params2 = Vec::new_in(arena);
+        for p in params {
+            params2.push(p);
+        }
+        let mut body2 = Vec::new_in(arena);
+        for b in body {
+            body2.push(b);
+        }
+        Value::Clos { env, params: arena.alloc(params2), body: arena.alloc(body2) }
     }
-    */
 
     pub fn varray_<'a>(arena: &'a Bump, values: std::vec::Vec<Value<'a>>) -> Value<'a> {
         let mut values2 = Vec::new_in(arena);
