@@ -85,7 +85,7 @@ impl Interpreter {
                 match clos {
                     Value::Clos { env: fun_env, params, body } => {
                         let mut fun_env = fun_env.clone();
-                        let foo = params.iter()
+                        params.into_iter()
                             .zip(fun_args2.into_iter())
                             .for_each(|(p, a)| {
                                 fun_env.add_value(p, a);
