@@ -1,69 +1,71 @@
-use crate::interpreter::state::State;
+use crate::interpreter::env::Env;
 use crate::interpreter::stmtresult::{constructors::*, StmtResult};
 use crate::interpreter::value::{constructors::*, Value};
 use crate::types::exp::{constructors::*, Exp, Op2};
 use crate::types::stmt::{constructors::*, LVal, Stmt};
 
-pub struct Interpreter {}
+use bumpalo::Bump;
+
+pub struct Interpreter { }
 
 impl Interpreter {
     pub fn new() -> Interpreter {
         Interpreter {}
     }
 
-    pub fn eval(&mut self, mut ir: &[Stmt], state: &mut State) -> Value {
-        match self.eval_stmts(ir, state) {
+    pub fn eval<'a>(&mut self, mut ir: &[Stmt], env: &mut Env<'a>, arena: &'a Bump) -> Value<'a> {
+        match self.eval_stmts(ir, env, arena) {
             StmtResult::Return { value } => value,
             _ => unimplemented!(),
         }
     }
 
-    fn eval_stmts(&mut self, stmts: &[Stmt], state: &mut State) -> StmtResult {
+    fn eval_stmts<'a>(&mut self, stmts: &[Stmt], env: &mut Env<'a>, arena: &'a Bump) -> StmtResult<'a> {
         let mut res = srnothing_();
         for s in stmts {
-            res = self.eval_stmt(s, state);
+            res = self.eval_stmt(s, env, arena);
         }
         res
     }
 
-    fn eval_stmt(&mut self, stmt: &Stmt, state: &mut State) -> StmtResult {
+    fn eval_stmt<'a>(&mut self, stmt: &Stmt, env: &mut Env<'a>, arena: &'a Bump) -> StmtResult<'a> {
         match stmt {
             Stmt::Let { name, named } => {
-                let named2 = self.eval_exp(named, state);
-                state.add_value(name, named2);
+                let named2 = self.eval_exp(named, env, arena);
+                env.add_value(name, named2);
                 srnothing_()
             }
             Stmt::Set { lval, named } => {
-                let named = self.eval_exp(named, state);
-                self.set_lval(lval, named, state);
+                let named = self.eval_exp(named, env, arena);
+                self.set_lval(lval, named, env, arena);
                 srnothing_()
             }
             Stmt::Return { value } => {
-                let value2 = self.eval_exp(value, state);
+                let value2 = self.eval_exp(value, env, arena);
                 srreturn_(value2)
             }
             _ => unimplemented!(),
         }
     }
 
-    fn eval_exp(&mut self, exp: &Exp, state: &mut State) -> Value {
+    fn eval_exp<'a>(&mut self, exp: &Exp, env: &mut Env<'a>, arena: &'a Bump) -> Value<'a> {
         match exp {
             Exp::Number { value } => vnumber_(*value),
-            Exp::Identifier { name } => state.get_value(name),
+            Exp::Identifier { name } => env.get_value(name),
             Exp::Array { exps } => {
-                let mut values2: Vec<Value> = vec!();
+                let mut values2: Vec<Value<'a>> = vec!();
                 for v in exps {
-                    values2.push(self.eval_exp(v, state));
+                    values2.push(self.eval_exp(v, env, arena));
                 }
-                varray_(values2)
+                varray_(arena, values2)
             },
             Exp::Index { e1, e2 } => {
-                let array = self.eval_exp(e1, state);
-                let index = self.eval_exp(e2, state);
+                let array = self.eval_exp(e1, env, arena);
+                let index = self.eval_exp(e2, env, arena);
                 match (array, index) {
                     (Value::Array { values }, Value::Number { value }) => {
                         if (value >= 0.0) && (value <= usize::max_value() as f64) {
-                            values[value as usize].to_owned()
+                            values.borrow()[value as usize].to_owned()
                         } else {
                             vundefined_()
                         }
@@ -75,27 +77,27 @@ impl Interpreter {
         }
     }
 
-    fn set_lval(&mut self, lval: &LVal, rval: Value, state: &mut State) {
+    fn set_lval<'a>(&mut self, lval: &LVal, rval: Value<'a>, env: &mut Env<'a>, arena: &'a Bump) {
         match lval {
             LVal::Identifier { name } => {
-                state.set_value(name, rval);
+                env.set_value(name, rval);
             }
             LVal::Index { e, index } => {
                 let name = self.get_id(e);
-                let index_ = &self.eval_exp(index, state);
-                let e_ = state.borrow_mut_value(&name);
-                match e_ {
+                let index_ = &self.eval_exp(index, env, arena);
+                match env.get_value(&name) {
                     Value::Array { values } => {
-                        if let Value::Number { value: y } = index_ {
-                            let y_: f64 = *y;
-                            if (y_ >= 0.0) && (y_ <= usize::max_value() as f64) {
-                                values[y_ as usize] = rval;
+                        match &self.eval_exp(index, env, arena) {
+                            Value::Number { value } => {
+                                let value = *value;
+                                if (value >= 0.0) && (value <= usize::max_value() as f64) {
+                                    std::mem::replace(&mut values.borrow_mut()[value as usize], rval);
+                                }
                             }
-                        } else {
-                            unimplemented!("indexing with value {:?}", index_);
+                            _ => panic!("Expected index.")
                         }
                     }
-                    _ => (),
+                    _ => panic!("Expected array.")
                 }
             }
             _ => unimplemented!(),

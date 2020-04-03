@@ -5,6 +5,8 @@ mod tests {
     use crate::types::exp::constructors::*;
     use crate::types::stmt::{constructors::*, LVal};
 
+    use bumpalo::Bump;
+
     #[test]
     fn it_works() {
         assert_eq!(2 + 2, 4);
@@ -17,7 +19,8 @@ mod tests {
         let expected_output = vnumber_(5.0);
 
         let test_runner = TestRunner::new();
-        test_runner.test(ir, expected_output);
+        let arena = Bump::new();
+        test_runner.test(&arena, ir, expected_output);
     }
 
     #[test]
@@ -36,7 +39,8 @@ mod tests {
         let expected_output = vnumber_(10.0);
 
         let test_runner = TestRunner::new();
-        test_runner.test(ir, expected_output);
+        let arena = Bump::new();
+        test_runner.test(&arena, ir, expected_output);
     }
 
     #[test]
@@ -56,7 +60,8 @@ mod tests {
         let expected_output = vnumber_(0.0);
 
         let test_runner = TestRunner::new();
-        test_runner.test(ir, expected_output);
+        let arena = Bump::new();
+        test_runner.test(&arena, ir, expected_output);
     }
 
     #[test]
@@ -69,7 +74,8 @@ mod tests {
         let expected_output = vnumber_(2.0);
 
         let test_runner = TestRunner::new();
-        test_runner.test(ir, expected_output);
+        let arena = Bump::new();
+        test_runner.test(&arena, ir, expected_output);
     }
 
     #[test]
@@ -89,7 +95,8 @@ mod tests {
         let expected_output = vnumber_(10.0);
 
         let test_runner = TestRunner::new();
-        test_runner.test(ir, expected_output);
+        let arena = Bump::new();
+        test_runner.test(&arena, ir, expected_output);
     }
 
     #[test]
@@ -110,6 +117,7 @@ mod tests {
         let expected_output = vnumber_(10.0);
 
         let test_runner = TestRunner::new();
-        test_runner.test(ir, expected_output);
+        let arena = Bump::new();
+        test_runner.test(&arena, ir, expected_output);
     }
 }
