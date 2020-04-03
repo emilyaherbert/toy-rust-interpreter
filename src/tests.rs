@@ -154,41 +154,29 @@ mod tests {
         test_runner.test(&arena, ir, expected_output);
     }
 
-    /*
-    function makeAdder(x) {
-        return function(y) {
-            x = x + 1;
-            return x + y;
-        }
-    }
-    let F = makeAdder(10);
-    let G = makeAdder(10);
-    
-    function main() {
-        return F(0) + G(2) + F(1);
-    }
-    */
-
-    /*
     #[test]
-    fn make_addr() {
+    fn make_adder() {
         let ir = vec![
-            let_("F", function_(vec!["x".to_string()], vec![
-                let_("G", function_(vec!["y".to_string()], vec![
-                    set_(LVal::Identifier { name: "x".to_string() }, named: Exp)
+            let_("makeAdder", function_(vec!["x".to_string()], vec![
+                let_("inner", function_(vec!["y".to_string()], vec![
+                    set_(LVal::Identifier { name: "x".to_string() }, binop_(Op2::Add, identifier_("x"), number_(1.0))),
+                    return_(binop_(Op2::Add, identifier_("x"), identifier_("y")))
                 ])),
-                return_(identifier_("G"))
+                return_(identifier_("inner"))
             ])),
-            let_("foo", array_(vec![number_(1.0), number_(101.0)])),
-            let_("bar", fun_app_(identifier_("F"), vec![identifier_("foo")])),
-            return_(identifier_("bar"))
+            let_("F", fun_app_(identifier_("makeAdder"), vec![number_(10.0)])),
+            let_("G", fun_app_(identifier_("makeAdder"), vec![number_(10.0)])),
+            let_("foo", fun_app_(identifier_("F"), vec![number_(0.0)])),
+            let_("bar", fun_app_(identifier_("G"), vec![number_(2.0)])),
+            let_("baz", fun_app_(identifier_("F"), vec![number_(1.0)])),
+            let_("timmy", binop_(Op2::Add, identifier_("foo"), identifier_("bar"))),
+            return_(binop_(Op2::Add, identifier_("bar"), identifier_("baz")))
         ];
 
-        let expected_output = vnumber_(101.0);
+        let expected_output = vnumber_(37.0);
 
         let test_runner = TestRunner::new();
         let arena = Bump::new();
         test_runner.test(&arena, ir, expected_output);
     }
-    */
 }
