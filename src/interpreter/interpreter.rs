@@ -6,7 +6,7 @@ use crate::types::stmt::{constructors::*, LVal, Stmt};
 
 use bumpalo::Bump;
 
-pub struct Interpreter { }
+pub struct Interpreter {}
 
 impl Interpreter {
     pub fn new() -> Interpreter {
@@ -20,7 +20,9 @@ impl Interpreter {
         }
     }
 
-    fn eval_stmts<'a>(&mut self, stmts: &[Stmt], mut env: Env<'a>, arena: &'a Bump) -> StmtResult<'a> {
+    fn eval_stmts<'a>(
+        &mut self, stmts: &[Stmt], mut env: Env<'a>, arena: &'a Bump,
+    ) -> StmtResult<'a> {
         let mut res = srnothing_();
         let mut env = env;
         for s in stmts {
@@ -31,7 +33,9 @@ impl Interpreter {
         res
     }
 
-    fn eval_stmt<'a>(&mut self, stmt: &Stmt, mut env: Env<'a>, arena: &'a Bump) -> (StmtResult<'a>, Env<'a>) {
+    fn eval_stmt<'a>(
+        &mut self, stmt: &Stmt, mut env: Env<'a>, arena: &'a Bump,
+    ) -> (StmtResult<'a>, Env<'a>) {
         match stmt {
             Stmt::Let { name, named } => {
                 let (named, mut env) = self.eval_exp(named, env, arena);
@@ -51,7 +55,9 @@ impl Interpreter {
         }
     }
 
-    fn eval_exp<'a>(&mut self, exp: &Exp, mut env: Env<'a>, arena: &'a Bump) -> (Value<'a>, Env<'a>) {
+    fn eval_exp<'a>(
+        &mut self, exp: &Exp, mut env: Env<'a>, arena: &'a Bump,
+    ) -> (Value<'a>, Env<'a>) {
         match exp {
             Exp::Number { value } => (vnumber_(*value), env),
             Exp::Identifier { name } => (env.get_value(name), env),
@@ -59,12 +65,14 @@ impl Interpreter {
                 let (e1, env1) = self.eval_exp(e1, env, arena);
                 let (e2, env2) = self.eval_exp(e2, env1, arena);
                 match (op, e1, e2) {
-                    (Op2::Add, Value::Number { value: v1 }, Value::Number { value: v2 }) => (vnumber_(v1+v2), env2),
-                    _ => unimplemented!()
+                    (Op2::Add, Value::Number { value: v1 }, Value::Number { value: v2 }) => {
+                        (vnumber_(v1 + v2), env2)
+                    }
+                    _ => unimplemented!(),
                 }
-            },
+            }
             Exp::Array { exps } => {
-                let mut values: Vec<Value<'a>> = vec!();
+                let mut values: Vec<Value<'a>> = vec![];
                 let mut env = env;
                 for v in exps {
                     let (v, e) = self.eval_exp(v, env, arena);
@@ -72,7 +80,7 @@ impl Interpreter {
                     env = e;
                 }
                 (varray_(arena, values), env)
-            },
+            }
             Exp::Index { e1, e2 } => {
                 let (array, env1) = self.eval_exp(e1, env, arena);
                 let (index, env2) = self.eval_exp(e2, env1, arena);
@@ -83,16 +91,17 @@ impl Interpreter {
                         } else {
                             (vundefined_(), env2)
                         }
-                    },
-                    _ => panic!("Expected array and index.")
+                    }
+                    _ => panic!("Expected array and index."),
                 }
-            },
-            Exp::Function { params, body } => {
-                (vclos_(arena, env.clone(), params.to_vec(), body.to_vec()), env)
-            },
+            }
+            Exp::Function { params, body } => (
+                vclos_(arena, env.clone(), params.to_vec(), body.to_vec()),
+                env,
+            ),
             Exp::FunApp { fun, fun_args } => {
                 let (clos, env) = self.eval_exp(fun, env, arena);
-                let mut fun_args2: Vec<Value> = vec!();
+                let mut fun_args2: Vec<Value> = vec![];
                 let mut env = env;
                 for a in fun_args.into_iter() {
                     let (a, e) = self.eval_exp(&a, env, arena);
@@ -100,26 +109,33 @@ impl Interpreter {
                     env = e;
                 }
                 match clos {
-                    Value::Clos { env: fun_env, params, body } => {
+                    Value::Clos {
+                        env: fun_env,
+                        params,
+                        body,
+                    } => {
                         let mut fun_env = fun_env.clone();
-                        params.into_iter()
+                        params
+                            .into_iter()
                             .zip(fun_args2.into_iter())
                             .for_each(|(p, a)| {
                                 fun_env.add_value(p, a);
                             });
                         match self.eval_stmts(body, fun_env, arena) {
                             StmtResult::Return { value } => (value, env),
-                            StmtResult::Nothing => (vundefined_(), env)
+                            StmtResult::Nothing => (vundefined_(), env),
                         }
-                    },
-                    _ => panic!("Expected env.")
+                    }
+                    _ => panic!("Expected env."),
                 }
             }
             _ => unimplemented!(),
         }
     }
 
-    fn set_lval<'a>(&mut self, lval: &LVal, rval: Value<'a>, mut env: Env<'a>, arena: &'a Bump) -> Env<'a> {
+    fn set_lval<'a>(
+        &mut self, lval: &LVal, rval: Value<'a>, mut env: Env<'a>, arena: &'a Bump,
+    ) -> Env<'a> {
         match lval {
             LVal::Identifier { name } => {
                 env.set_value(name, rval);
@@ -128,18 +144,16 @@ impl Interpreter {
             LVal::Index { e, index } => {
                 let name = self.get_id(e);
                 match env.get_value(&name) {
-                    Value::Array { values } => {
-                        match self.eval_exp(index, env, arena) {
-                            (Value::Number { value }, env) => {
-                                if (value >= 0.0) && (value <= usize::max_value() as f64) {
-                                    std::mem::replace(&mut values.borrow_mut()[value as usize], rval);
-                                }
-                                env
-                            },
-                            _ => panic!("Expected number.")
+                    Value::Array { values } => match self.eval_exp(index, env, arena) {
+                        (Value::Number { value }, env) => {
+                            if (value >= 0.0) && (value <= usize::max_value() as f64) {
+                                std::mem::replace(&mut values.borrow_mut()[value as usize], rval);
+                            }
+                            env
                         }
+                        _ => panic!("Expected number."),
                     },
-                    _ => panic!("Expected array.")
+                    _ => panic!("Expected array."),
                 }
             }
             _ => unimplemented!(),

@@ -1,12 +1,12 @@
 use crate::interpreter::env::Env;
 use crate::types::stmt::Stmt;
 
-use std::cell::RefCell;
 use bumpalo::collections::Vec;
+use std::cell::RefCell;
 
 #[derive(PartialEq, Debug, Clone)]
 pub enum Value<'a> {
-    Undefined { },
+    Undefined {},
     Number {
         value: f64,
     },
@@ -17,7 +17,7 @@ pub enum Value<'a> {
         name: String,
     },
     Array {
-        values: &'a RefCell<Vec<'a, Value<'a>>>
+        values: &'a RefCell<Vec<'a, Value<'a>>>,
     },
     Clos {
         env: Env<'a>,
@@ -28,19 +28,16 @@ pub enum Value<'a> {
 
 pub mod constructors {
     //use crate::interpreter::state::Env;
+    use crate::interpreter::env::Env;
     use crate::interpreter::value::Value;
     use crate::types::stmt::Stmt;
-    use crate::interpreter::env::Env;
 
-    use std::cell::RefCell;
+    use bumpalo::{collections::Vec, Bump};
     use rc::Rc;
-    use bumpalo::{
-        Bump,
-        collections::Vec
-    };
+    use std::cell::RefCell;
 
     pub fn vundefined_<'a>() -> Value<'a> {
-        Value::Undefined { }
+        Value::Undefined {}
     }
 
     pub fn vnumber_<'a>(value: f64) -> Value<'a> {
@@ -51,7 +48,9 @@ pub mod constructors {
         Value::Boolean { value }
     }
 
-    pub fn vclos_<'a>(arena: &'a Bump, env: Env<'a>, params: std::vec::Vec<String>, body: std::vec::Vec<Stmt>) -> Value<'a> {
+    pub fn vclos_<'a>(
+        arena: &'a Bump, env: Env<'a>, params: std::vec::Vec<String>, body: std::vec::Vec<Stmt>,
+    ) -> Value<'a> {
         let mut params2 = Vec::new_in(arena);
         for p in params {
             params2.push(p);
@@ -60,7 +59,11 @@ pub mod constructors {
         for b in body {
             body2.push(b);
         }
-        Value::Clos { env, params: arena.alloc(params2), body: arena.alloc(body2) }
+        Value::Clos {
+            env,
+            params: arena.alloc(params2),
+            body: arena.alloc(body2),
+        }
     }
 
     pub fn varray_<'a>(arena: &'a Bump, values: std::vec::Vec<Value<'a>>) -> Value<'a> {
@@ -68,6 +71,8 @@ pub mod constructors {
         for v in values {
             values2.push(v);
         }
-        Value::Array { values: arena.alloc(RefCell::new(values2)) }
+        Value::Array {
+            values: arena.alloc(RefCell::new(values2)),
+        }
     }
 }

@@ -4,13 +4,13 @@ use std::collections::HashMap;
 
 #[derive(PartialEq, Debug, Clone)]
 pub struct Env<'a> {
-    elems: HashMap<String, Value<'a>>
+    elems: HashMap<String, Value<'a>>,
 }
 
 impl<'a> Env<'a> {
     pub fn new() -> Env<'a> {
         Env {
-            elems: HashMap::new()
+            elems: HashMap::new(),
         }
     }
 
@@ -24,7 +24,10 @@ impl<'a> Env<'a> {
     }
 
     pub fn get_value(&self, name: &str) -> Value<'a> {
-        self.elems.get(name).map(|e| e.to_owned()).expect("Name not found.")
+        self.elems
+            .get(name)
+            .map(|e| e.to_owned())
+            .expect("Name not found.")
     }
 
     pub fn borrow_mut_value(&mut self, name: &str) -> &mut Value<'a> {
