@@ -127,28 +127,20 @@ impl Interpreter {
             }
             LVal::Index { e, index } => {
                 let name = self.get_id(e);
-
-
-
-                /*
-                let index_ = &self.eval_exp(index, env, arena);
                 match env.get_value(&name) {
                     Value::Array { values } => {
-                        match &self.eval_exp(index, env, arena) {
-                            Value::Number { value } => {
-                                let value = *value;
+                        match self.eval_exp(index, env, arena) {
+                            (Value::Number { value }, env) => {
                                 if (value >= 0.0) && (value <= usize::max_value() as f64) {
                                     std::mem::replace(&mut values.borrow_mut()[value as usize], rval);
                                 }
-                            }
-                            _ => panic!("Expected index.")
+                                env
+                            },
+                            _ => panic!("Expected number.")
                         }
-                    }
+                    },
                     _ => panic!("Expected array.")
                 }
-                */
-
-                unimplemented!()
             }
             _ => unimplemented!(),
         }
