@@ -13,82 +13,91 @@ impl Interpreter {
         Interpreter {}
     }
 
-    pub fn eval<'a>(&mut self, mut ir: &[Stmt], env: &mut Env<'a>, arena: &'a Bump) -> Value<'a> {
+    pub fn eval<'a>(&mut self, mut ir: &[Stmt], mut env: Env<'a>, arena: &'a Bump) -> Value<'a> {
         match self.eval_stmts(ir, env, arena) {
             StmtResult::Return { value } => value,
             _ => unimplemented!(),
         }
     }
 
-    fn eval_stmts<'a>(&mut self, stmts: &[Stmt], env: &mut Env<'a>, arena: &'a Bump) -> StmtResult<'a> {
+    fn eval_stmts<'a>(&mut self, stmts: &[Stmt], mut env: Env<'a>, arena: &'a Bump) -> StmtResult<'a> {
         let mut res = srnothing_();
+        let mut env = env;
         for s in stmts {
-            res = self.eval_stmt(s, env, arena);
+            let (r, e) = self.eval_stmt(s, env, arena);
+            res = r;
+            env = e;
         }
         res
     }
 
-    fn eval_stmt<'a>(&mut self, stmt: &Stmt, env: &mut Env<'a>, arena: &'a Bump) -> StmtResult<'a> {
+    fn eval_stmt<'a>(&mut self, stmt: &Stmt, mut env: Env<'a>, arena: &'a Bump) -> (StmtResult<'a>, Env<'a>) {
         match stmt {
             Stmt::Let { name, named } => {
-                let named2 = self.eval_exp(named, env, arena);
-                env.add_value(name, named2);
-                srnothing_()
+                let (named, mut env) = self.eval_exp(named, env, arena);
+                env.add_value(name, named);
+                (srnothing_(), env)
             }
             Stmt::Set { lval, named } => {
-                let named = self.eval_exp(named, env, arena);
-                self.set_lval(lval, named, env, arena);
-                srnothing_()
+                let (named, mut env) = self.eval_exp(named, env, arena);
+                let mut env = self.set_lval(lval, named, env, arena);
+                (srnothing_(), env)
             }
             Stmt::Return { value } => {
-                let value2 = self.eval_exp(value, env, arena);
-                srreturn_(value2)
+                let (value, env) = self.eval_exp(value, env, arena);
+                (srreturn_(value), env)
             }
             _ => unimplemented!(),
         }
     }
 
-    fn eval_exp<'a>(&mut self, exp: &Exp, env: &mut Env<'a>, arena: &'a Bump) -> Value<'a> {
+    fn eval_exp<'a>(&mut self, exp: &Exp, mut env: Env<'a>, arena: &'a Bump) -> (Value<'a>, Env<'a>) {
         match exp {
-            Exp::Number { value } => vnumber_(*value),
-            Exp::Identifier { name } => env.get_value(name),
+            Exp::Number { value } => (vnumber_(*value), env),
+            Exp::Identifier { name } => (env.get_value(name), env),
             Exp::BinOp { op, e1, e2 } => {
-                let e1 = self.eval_exp(e1, env, arena);
-                let e2 = self.eval_exp(e2, env, arena);
+                let (e1, env1) = self.eval_exp(e1, env, arena);
+                let (e2, env2) = self.eval_exp(e2, env1, arena);
                 match (op, e1, e2) {
-                    (Op2::Add, Value::Number { value: v1 }, Value::Number { value: v2 }) => vnumber_(v1+v2),
+                    (Op2::Add, Value::Number { value: v1 }, Value::Number { value: v2 }) => (vnumber_(v1+v2), env2),
                     _ => unimplemented!()
                 }
             },
             Exp::Array { exps } => {
-                let mut values2: Vec<Value<'a>> = vec!();
+                let mut values: Vec<Value<'a>> = vec!();
+                let mut env = env;
                 for v in exps {
-                    values2.push(self.eval_exp(v, env, arena));
+                    let (v, e) = self.eval_exp(v, env, arena);
+                    values.push(v);
+                    env = e;
                 }
-                varray_(arena, values2)
+                (varray_(arena, values), env)
             },
             Exp::Index { e1, e2 } => {
-                let array = self.eval_exp(e1, env, arena);
-                let index = self.eval_exp(e2, env, arena);
+                let (array, env1) = self.eval_exp(e1, env, arena);
+                let (index, env2) = self.eval_exp(e2, env1, arena);
                 match (array, index) {
                     (Value::Array { values }, Value::Number { value }) => {
                         if (value >= 0.0) && (value <= usize::max_value() as f64) {
-                            values.borrow()[value as usize].to_owned()
+                            (values.borrow()[value as usize].to_owned(), env2)
                         } else {
-                            vundefined_()
+                            (vundefined_(), env2)
                         }
                     },
                     _ => panic!("Expected array and index.")
                 }
             },
             Exp::Function { params, body } => {
-                vclos_(arena, env.clone(), params.to_vec(), body.to_vec())
+                (vclos_(arena, env.clone(), params.to_vec(), body.to_vec()), env)
             },
             Exp::FunApp { fun, fun_args } => {
-                let clos = self.eval_exp(fun, env, arena);
+                let (clos, env) = self.eval_exp(fun, env, arena);
                 let mut fun_args2: Vec<Value> = vec!();
+                let mut env = env;
                 for a in fun_args.into_iter() {
-                    fun_args2.push(self.eval_exp(&a, env, arena));
+                    let (a, e) = self.eval_exp(&a, env, arena);
+                    fun_args2.push(a);
+                    env = e;
                 }
                 match clos {
                     Value::Clos { env: fun_env, params, body } => {
@@ -98,9 +107,9 @@ impl Interpreter {
                             .for_each(|(p, a)| {
                                 fun_env.add_value(p, a);
                             });
-                        match self.eval_stmts(body, &mut fun_env, arena) {
-                            StmtResult::Return { value } => value,
-                            StmtResult::Nothing => vundefined_()
+                        match self.eval_stmts(body, fun_env, arena) {
+                            StmtResult::Return { value } => (value, env),
+                            StmtResult::Nothing => (vundefined_(), env)
                         }
                     },
                     _ => panic!("Expected env.")
@@ -110,13 +119,18 @@ impl Interpreter {
         }
     }
 
-    fn set_lval<'a>(&mut self, lval: &LVal, rval: Value<'a>, env: &mut Env<'a>, arena: &'a Bump) {
+    fn set_lval<'a>(&mut self, lval: &LVal, rval: Value<'a>, mut env: Env<'a>, arena: &'a Bump) -> Env<'a> {
         match lval {
             LVal::Identifier { name } => {
                 env.set_value(name, rval);
+                env
             }
             LVal::Index { e, index } => {
                 let name = self.get_id(e);
+
+
+
+                /*
                 let index_ = &self.eval_exp(index, env, arena);
                 match env.get_value(&name) {
                     Value::Array { values } => {
@@ -132,6 +146,9 @@ impl Interpreter {
                     }
                     _ => panic!("Expected array.")
                 }
+                */
+
+                unimplemented!()
             }
             _ => unimplemented!(),
         }

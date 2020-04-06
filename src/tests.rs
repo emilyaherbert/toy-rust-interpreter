@@ -4,6 +4,7 @@ mod tests {
     use crate::test_runner::TestRunner;
     use crate::types::exp::{constructors::*, Op2};
     use crate::types::stmt::{constructors::*, LVal};
+    use crate::interpreter::env::Env;
 
     use bumpalo::Bump;
 
@@ -20,7 +21,8 @@ mod tests {
 
         let test_runner = TestRunner::new();
         let arena = Bump::new();
-        test_runner.test(&arena, ir, expected_output);
+        let env = Env::new();
+        test_runner.test(&arena, env, ir);
     }
 
     #[test]
@@ -40,7 +42,8 @@ mod tests {
 
         let test_runner = TestRunner::new();
         let arena = Bump::new();
-        test_runner.test(&arena, ir, expected_output);
+        let env = Env::new();
+        test_runner.test(&arena, env, ir);
     }
 
     #[test]
@@ -61,7 +64,8 @@ mod tests {
 
         let test_runner = TestRunner::new();
         let arena = Bump::new();
-        test_runner.test(&arena, ir, expected_output);
+        let env = Env::new();
+        test_runner.test(&arena, env, ir);
     }
 
     #[test]
@@ -75,7 +79,8 @@ mod tests {
 
         let test_runner = TestRunner::new();
         let arena = Bump::new();
-        test_runner.test(&arena, ir, expected_output);
+        let env = Env::new();
+        test_runner.test(&arena, env, ir);
     }
 
     #[test]
@@ -96,7 +101,8 @@ mod tests {
 
         let test_runner = TestRunner::new();
         let arena = Bump::new();
-        test_runner.test(&arena, ir, expected_output);
+        let env = Env::new();
+        test_runner.test(&arena, env, ir);
     }
 
     #[test]
@@ -118,7 +124,8 @@ mod tests {
 
         let test_runner = TestRunner::new();
         let arena = Bump::new();
-        test_runner.test(&arena, ir, expected_output);
+        let env = Env::new();
+        test_runner.test(&arena, env, ir);
     }
 
     #[test]
@@ -136,9 +143,10 @@ mod tests {
 
         let test_runner = TestRunner::new();
         let arena = Bump::new();
-        test_runner.test(&arena, ir, expected_output);
+        let env = Env::new();
+        test_runner.test(&arena, env, ir);
     }
-    
+
     #[test]
     fn clos2() {
         let ir = vec![
@@ -154,7 +162,8 @@ mod tests {
 
         let test_runner = TestRunner::new();
         let arena = Bump::new();
-        test_runner.test(&arena, ir, expected_output);
+        let env = Env::new();
+        test_runner.test(&arena, env, ir);
     }
 
     #[test]
@@ -169,7 +178,8 @@ mod tests {
 
         let test_runner = TestRunner::new();
         let arena = Bump::new();
-        test_runner.test(&arena, ir, expected_output);
+        let env = Env::new();
+        test_runner.test(&arena, env, ir);
     }
 
     #[test]
@@ -195,6 +205,7 @@ mod tests {
 
         let test_runner = TestRunner::new();
         let arena = Bump::new();
-        test_runner.test(&arena, ir, expected_output);
+        let env = Env::new();
+        test_runner.test(&arena, env, ir);
     }
 }

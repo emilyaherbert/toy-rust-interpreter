@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 #[derive(PartialEq, Debug, Clone)]
 pub struct Env<'a> {
-    pub elems: HashMap<String, Value<'a>>
+    elems: HashMap<String, Value<'a>>
 }
 
 impl<'a> Env<'a> {
