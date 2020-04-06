@@ -1,7 +1,6 @@
 use crate::interpreter::env::Env;
 use crate::interpreter::interpreter::Interpreter;
 use crate::interpreter::value::Value;
-use crate::types::exp::Exp;
 use crate::types::stmt::Stmt;
 
 use bumpalo::Bump;

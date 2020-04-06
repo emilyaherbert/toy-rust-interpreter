@@ -1,8 +1,8 @@
 use crate::interpreter::env::Env;
 use crate::interpreter::stmtresult::{constructors::*, StmtResult};
 use crate::interpreter::value::{constructors::*, Value};
-use crate::types::exp::{constructors::*, Exp, Op2};
-use crate::types::stmt::{constructors::*, LVal, Stmt};
+use crate::types::exp::{Exp, Op2};
+use crate::types::stmt::{LVal, Stmt};
 
 use bumpalo::Bump;
 
@@ -13,7 +13,7 @@ impl Interpreter {
         Interpreter {}
     }
 
-    pub fn eval<'a>(&mut self, mut ir: &[Stmt], mut env: Env<'a>, arena: &'a Bump) -> Value<'a> {
+    pub fn eval<'a>(&mut self, ir: &[Stmt], env: Env<'a>, arena: &'a Bump) -> Value<'a> {
         match self.eval_stmts(ir, env, arena) {
             StmtResult::Return { value } => value,
             _ => unimplemented!(),
@@ -21,7 +21,7 @@ impl Interpreter {
     }
 
     fn eval_stmts<'a>(
-        &mut self, stmts: &[Stmt], mut env: Env<'a>, arena: &'a Bump,
+        &mut self, stmts: &[Stmt], env: Env<'a>, arena: &'a Bump,
     ) -> StmtResult<'a> {
         let mut res = srnothing_();
         let mut env = env;
@@ -34,7 +34,7 @@ impl Interpreter {
     }
 
     fn eval_stmt<'a>(
-        &mut self, stmt: &Stmt, mut env: Env<'a>, arena: &'a Bump,
+        &mut self, stmt: &Stmt, env: Env<'a>, arena: &'a Bump,
     ) -> (StmtResult<'a>, Env<'a>) {
         match stmt {
             Stmt::Let { name, named } => {
@@ -43,8 +43,8 @@ impl Interpreter {
                 (srnothing_(), env)
             }
             Stmt::Set { lval, named } => {
-                let (named, mut env) = self.eval_exp(named, env, arena);
-                let mut env = self.set_lval(lval, named, env, arena);
+                let (named, env) = self.eval_exp(named, env, arena);
+                let env = self.set_lval(lval, named, env, arena);
                 (srnothing_(), env)
             }
             Stmt::Return { value } => {
@@ -56,7 +56,7 @@ impl Interpreter {
     }
 
     fn eval_exp<'a>(
-        &mut self, exp: &Exp, mut env: Env<'a>, arena: &'a Bump,
+        &mut self, exp: &Exp, env: Env<'a>, arena: &'a Bump,
     ) -> (Value<'a>, Env<'a>) {
         match exp {
             Exp::Number { value } => (vnumber_(*value), env),

@@ -33,7 +33,6 @@ pub mod constructors {
     use crate::types::stmt::Stmt;
 
     use bumpalo::{collections::Vec, Bump};
-    use rc::Rc;
     use std::cell::RefCell;
 
     pub fn vundefined_<'a>() -> Value<'a> {

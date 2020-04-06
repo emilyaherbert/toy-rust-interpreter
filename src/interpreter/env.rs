@@ -19,7 +19,6 @@ impl<'a> Env<'a> {
     }
 
     pub fn set_value(&mut self, name: &str, value: Value<'a>) {
-        let addr = self.elems.get(name).expect("Name not found.");
         self.elems.insert(name.to_string(), value);
     }
 
