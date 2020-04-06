@@ -22,7 +22,8 @@ mod tests {
         let test_runner = TestRunner::new();
         let arena = Bump::new();
         let env = Env::new();
-        test_runner.test(&arena, env, ir);
+        let output = test_runner.test(&arena, env, ir);
+        assert_eq!(output, expected_output);
     }
 
     #[test]
@@ -43,7 +44,8 @@ mod tests {
         let test_runner = TestRunner::new();
         let arena = Bump::new();
         let env = Env::new();
-        test_runner.test(&arena, env, ir);
+        let output = test_runner.test(&arena, env, ir);
+        assert_eq!(output, expected_output);
     }
 
     #[test]
@@ -65,7 +67,8 @@ mod tests {
         let test_runner = TestRunner::new();
         let arena = Bump::new();
         let env = Env::new();
-        test_runner.test(&arena, env, ir);
+        let output = test_runner.test(&arena, env, ir);
+        assert_eq!(output, expected_output);
     }
 
     #[test]
@@ -80,7 +83,8 @@ mod tests {
         let test_runner = TestRunner::new();
         let arena = Bump::new();
         let env = Env::new();
-        test_runner.test(&arena, env, ir);
+        let output = test_runner.test(&arena, env, ir);
+        assert_eq!(output, expected_output);
     }
 
     #[test]
@@ -102,7 +106,8 @@ mod tests {
         let test_runner = TestRunner::new();
         let arena = Bump::new();
         let env = Env::new();
-        test_runner.test(&arena, env, ir);
+        let output = test_runner.test(&arena, env, ir);
+        assert_eq!(output, expected_output);
     }
 
     #[test]
@@ -125,7 +130,8 @@ mod tests {
         let test_runner = TestRunner::new();
         let arena = Bump::new();
         let env = Env::new();
-        test_runner.test(&arena, env, ir);
+        let output = test_runner.test(&arena, env, ir);
+        assert_eq!(output, expected_output);
     }
 
     #[test]
@@ -144,7 +150,8 @@ mod tests {
         let test_runner = TestRunner::new();
         let arena = Bump::new();
         let env = Env::new();
-        test_runner.test(&arena, env, ir);
+        let output = test_runner.test(&arena, env, ir);
+        assert_eq!(output, expected_output);
     }
 
     #[test]
@@ -163,7 +170,8 @@ mod tests {
         let test_runner = TestRunner::new();
         let arena = Bump::new();
         let env = Env::new();
-        test_runner.test(&arena, env, ir);
+        let output = test_runner.test(&arena, env, ir);
+        assert_eq!(output, expected_output);
     }
 
     #[test]
@@ -179,7 +187,8 @@ mod tests {
         let test_runner = TestRunner::new();
         let arena = Bump::new();
         let env = Env::new();
-        test_runner.test(&arena, env, ir);
+        let output = test_runner.test(&arena, env, ir);
+        assert_eq!(output, expected_output);
     }
 
     #[test]
@@ -206,6 +215,7 @@ mod tests {
         let test_runner = TestRunner::new();
         let arena = Bump::new();
         let env = Env::new();
-        test_runner.test(&arena, env, ir);
+        let output = test_runner.test(&arena, env, ir);
+        assert_eq!(output, expected_output);
     }
 }
