@@ -266,4 +266,27 @@ mod tests {
         let output = test_runner.test(&arena, &mut env, ir);
         assert_eq!(output, expected_output);
     }
+
+    #[test]
+    fn set_test3() {
+        let ir = vec![
+            let_("foo", number_(5.0)),
+            let_("bar", identifier_("foo")),
+            set_(
+                LVal::Identifier {
+                    name: "foo".to_string(),
+                },
+                number_(10.0),
+            ),
+            return_(identifier_("bar")),
+        ];
+
+        let expected_output = vnumber_(5.0);
+
+        let test_runner = TestRunner::new();
+        let arena = Bump::new();
+        let mut env = Env::new(&arena);
+        let output = test_runner.test(&arena, &mut env, ir);
+        assert_eq!(output, expected_output);
+    }
 }
