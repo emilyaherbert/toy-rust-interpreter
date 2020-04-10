@@ -2,34 +2,31 @@ use crate::interpreter::value::Value;
 
 use bumpalo::collections::{String, Vec};
 use bumpalo::Bump;
-use std::cell::RefCell;
 
-#[derive(PartialEq, Debug, Clone, Copy)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct Env<'a> {
-    pub elems: &'a RefCell<Vec<'a, (String<'a>, Value<'a>)>>,
+    pub elems: Vec<'a, (String<'a>, Value<'a>)>,
 }
 
 impl<'a> Env<'a> {
     pub fn new(arena: &'a Bump) -> Env<'a> {
         Env {
-            elems: arena.alloc(RefCell::new(Vec::new_in(arena))),
+            elems: Vec::new_in(arena),
         }
     }
 
-    pub fn new_with(arena: &'a Bump, elems: Vec<'a, (String<'a>, Value<'a>)>) -> Env<'a> {
+    pub fn new_with(elems: Vec<'a, (String<'a>, Value<'a>)>) -> Env<'a> {
         Env {
-            elems: arena.alloc(RefCell::new(elems)),
+            elems: elems,
         }
     }
 
     pub fn add_value(&mut self, arena: &'a Bump, name: std::string::String, value: Value<'a>) {
-        self.elems
-            .borrow_mut()
-            .push((String::from_str_in(&name, arena), value));
+        self.elems.push((String::from_str_in(&name, arena), value));
     }
 
     pub fn set_value(&mut self, name: std::string::String, value: Value<'a>) {
-        for (k, v) in self.elems.borrow().iter() {
+        for (k, v) in self.elems.iter() {
             if k.clone() == name {
                 match v {
                     Value::Ref { value: cell } => cell.set(value),
@@ -42,7 +39,7 @@ impl<'a> Env<'a> {
     }
 
     pub fn get_value(&self, key: &str) -> Value<'a> {
-        for (k, v) in self.elems.borrow().iter() {
+        for (k, v) in self.elems.iter() {
             if *k == key {
                 return *v;
             }

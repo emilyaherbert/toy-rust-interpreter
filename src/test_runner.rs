@@ -12,7 +12,7 @@ impl TestRunner {
         TestRunner {}
     }
 
-    pub fn test<'a>(&self, arena: &'a Bump, env: Env<'a>, ir: Vec<Stmt>) -> Value<'a> {
+    pub fn test<'a>(&self, arena: &'a Bump, env: &mut Env<'a>, ir: Vec<Stmt>) -> Value<'a> {
         let mut interpreter = Interpreter::new();
         let res = interpreter.eval(&ir, env, arena);
         res
