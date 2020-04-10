@@ -20,9 +20,7 @@ impl Interpreter {
         }
     }
 
-    fn eval_stmts<'a>(
-        &mut self, stmts: &[Stmt], env: Env<'a>, arena: &'a Bump,
-    ) -> StmtResult<'a> {
+    fn eval_stmts<'a>(&mut self, stmts: &[Stmt], env: Env<'a>, arena: &'a Bump) -> StmtResult<'a> {
         let mut res = srnothing_();
         let mut env = env;
         for s in stmts {
@@ -40,8 +38,8 @@ impl Interpreter {
             Stmt::Let { name, named } => {
                 let named = self.eval_exp(named, env, arena);
                 match named {
-                    Value::Array { values:_ } => env.add_value(arena, name.to_string(), named),
-                    other => env.add_value(arena, name.to_string(), vref_(arena, other))
+                    Value::Array { values: _ } => env.add_value(arena, name.to_string(), named),
+                    other => env.add_value(arena, name.to_string(), vref_(arena, other)),
                 }
                 (srnothing_(), env)
             }
@@ -58,18 +56,16 @@ impl Interpreter {
         }
     }
 
-    fn eval_exp<'a>(
-        &mut self, exp: &Exp, env: Env<'a>, arena: &'a Bump,
-    ) -> Value<'a> {
+    fn eval_exp<'a>(&mut self, exp: &Exp, env: Env<'a>, arena: &'a Bump) -> Value<'a> {
         match exp {
             Exp::Number { value } => vnumber_(*value),
             Exp::Identifier { name } => {
                 let v = env.get_value(name);
                 match v {
                     Value::Ref { value } => value.get(),
-                    other => other
+                    other => other,
                 }
-            },
+            }
             Exp::BinOp { op, e1, e2 } => {
                 let e1 = self.eval_exp(e1, env, arena);
                 let e2 = self.eval_exp(e2, env, arena);
@@ -102,7 +98,9 @@ impl Interpreter {
                     _ => panic!("Expected array and index."),
                 }
             }
-            Exp::Function { params, body } => vclos_(arena, env.clone(), params.to_vec(), body.to_vec()),
+            Exp::Function { params, body } => {
+                vclos_(arena, env.clone(), params.to_vec(), body.to_vec())
+            }
             Exp::FunApp { fun, fun_args } => {
                 let clos = self.eval_exp(fun, env, arena);
                 let mut fun_args2: Vec<Value> = vec![];

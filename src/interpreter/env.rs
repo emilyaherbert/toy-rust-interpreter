@@ -1,23 +1,25 @@
 use crate::interpreter::value::Value;
 
-use bumpalo::collections::{Vec, String};
+use bumpalo::collections::{String, Vec};
 use bumpalo::Bump;
 use std::cell::RefCell;
 
 #[derive(PartialEq, Debug, Clone, Copy)]
 pub struct Env<'a> {
-    pub elems: &'a RefCell<Vec<'a, (String<'a>, Value<'a>)>>
+    pub elems: &'a RefCell<Vec<'a, (String<'a>, Value<'a>)>>,
 }
 
 impl<'a> Env<'a> {
     pub fn new(arena: &'a Bump) -> Env<'a> {
         Env {
-            elems: arena.alloc(RefCell::new(Vec::new_in(arena)))
+            elems: arena.alloc(RefCell::new(Vec::new_in(arena))),
         }
     }
 
     pub fn add_value(&mut self, arena: &'a Bump, name: std::string::String, value: Value<'a>) {
-        self.elems.borrow_mut().push((String::from_str_in(&name, arena), value));
+        self.elems
+            .borrow_mut()
+            .push((String::from_str_in(&name, arena), value));
     }
 
     pub fn set_value(&mut self, name: std::string::String, value: Value<'a>) {
@@ -25,7 +27,7 @@ impl<'a> Env<'a> {
             if k.clone() == name {
                 match v {
                     Value::Ref { value: cell } => cell.set(value),
-                    other => panic!("Expected ref, got {:?}", other)
+                    other => panic!("Expected ref, got {:?}", other),
                 }
                 return;
             }
@@ -39,6 +41,6 @@ impl<'a> Env<'a> {
                 return *v;
             }
         }
-        return Value::Undefined { };
+        return Value::Undefined {};
     }
 }

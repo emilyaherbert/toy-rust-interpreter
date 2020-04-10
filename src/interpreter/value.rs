@@ -1,8 +1,8 @@
 use crate::interpreter::env::Env;
 use crate::types::stmt::Stmt;
 
-use bumpalo::collections::{Vec, String};
-use std::cell::{RefCell, Cell};
+use bumpalo::collections::{String, Vec};
+use std::cell::{Cell, RefCell};
 
 #[derive(PartialEq, Debug, Clone, Copy)]
 pub enum Value<'a> {
@@ -25,8 +25,8 @@ pub enum Value<'a> {
         body: &'a Vec<'a, Stmt>,
     },
     Ref {
-        value: &'a Cell<Value<'a>>
-    }
+        value: &'a Cell<Value<'a>>,
+    },
 }
 
 pub mod constructors {
@@ -34,9 +34,9 @@ pub mod constructors {
     use crate::interpreter::value::Value;
     use crate::types::stmt::Stmt;
 
-    use bumpalo::collections::{Vec, String};
+    use bumpalo::collections::{String, Vec};
     use bumpalo::Bump;
-    use std::cell::{RefCell, Cell};
+    use std::cell::{Cell, RefCell};
 
     pub fn vundefined_<'a>() -> Value<'a> {
         Value::Undefined {}
@@ -51,7 +51,8 @@ pub mod constructors {
     }
 
     pub fn vclos_<'a>(
-        arena: &'a Bump, env: Env<'a>, params: std::vec::Vec<std::string::String>, body: std::vec::Vec<Stmt>,
+        arena: &'a Bump, env: Env<'a>, params: std::vec::Vec<std::string::String>,
+        body: std::vec::Vec<Stmt>,
     ) -> Value<'a> {
         let mut params2 = Vec::new_in(arena);
         for p in params {
@@ -64,7 +65,7 @@ pub mod constructors {
         Value::Clos {
             env,
             params: arena.alloc(params2),
-            body: arena.alloc(body2)
+            body: arena.alloc(body2),
         }
     }
 
@@ -80,7 +81,7 @@ pub mod constructors {
 
     pub fn vref_<'a>(arena: &'a Bump, value: Value<'a>) -> Value<'a> {
         Value::Ref {
-            value: arena.alloc(Cell::new(value))
+            value: arena.alloc(Cell::new(value)),
         }
     }
 }
