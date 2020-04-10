@@ -20,7 +20,7 @@ pub enum Value<'a> {
         values: &'a RefCell<Vec<'a, Value<'a>>>,
     },
     Clos {
-        env: Env<'a>,
+        env: &'a Vec<'a, (String<'a>, Value<'a>)>,
         params: &'a Vec<'a, String<'a>>,
         body: &'a Vec<'a, Stmt>,
     },
@@ -51,7 +51,7 @@ pub mod constructors {
     }
 
     pub fn vclos_<'a>(
-        arena: &'a Bump, env: Env<'a>, params: std::vec::Vec<std::string::String>,
+        arena: &'a Bump, env: &'a Vec<'a, (String<'a>, Value<'a>)>, params: std::vec::Vec<std::string::String>,
         body: std::vec::Vec<Stmt>,
     ) -> Value<'a> {
         let mut params2 = Vec::new_in(arena);

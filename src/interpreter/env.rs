@@ -16,6 +16,12 @@ impl<'a> Env<'a> {
         }
     }
 
+    pub fn new_with(arena: &'a Bump, elems: Vec<'a, (String<'a>, Value<'a>)>) -> Env<'a> {
+        Env {
+            elems: arena.alloc(RefCell::new(elems))
+        }
+    }
+
     pub fn add_value(&mut self, arena: &'a Bump, name: std::string::String, value: Value<'a>) {
         self.elems.borrow_mut().push((String::from_str_in(&name, arena), value));
     }

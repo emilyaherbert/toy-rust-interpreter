@@ -35,7 +35,6 @@ impl Interpreter {
         let mut env = env;
         match stmt {
             Stmt::Let { name, named } => {
-                println!("{:?}", name);
                 let named = self.eval_exp(named, env, arena);
                 match named {
                     Value::Array { values: _ } => env.add_value(arena, name.to_string(), named),
@@ -44,7 +43,6 @@ impl Interpreter {
                 (srnothing_(), env)
             }
             Stmt::Set { lval, named } => {
-                println!("*** {:?}", lval);
                 let named = self.eval_exp(named, env, arena);
                 let env = self.set_lval(lval, named, env, arena);
                 (srnothing_(), env)
@@ -104,7 +102,7 @@ impl Interpreter {
                 }
             }
             Exp::Function { params, body } => {
-                vclos_(arena, env.clone(), params.to_vec(), body.to_vec())
+                vclos_(arena, arena.alloc(env.elems.borrow().clone()), params.to_vec(), body.to_vec())
             }
             Exp::FunApp { fun, fun_args } => {
                 let clos = self.eval_exp(fun, env, arena);
@@ -119,7 +117,7 @@ impl Interpreter {
                         params,
                         body,
                     } => {
-                        let mut fun_env = fun_env.clone();
+                        let mut fun_env = Env::new_with(arena, fun_env.clone());
                         params
                             .into_iter()
                             .zip(fun_args2.into_iter())
@@ -127,13 +125,7 @@ impl Interpreter {
                                 fun_env.add_value(arena, p.to_string(), vref_(arena, a));
                             });
                         match self.eval_stmts(body, fun_env, arena) {
-                            StmtResult::Return { value } => {
-                                match value {
-                                    Value::Number { value:_ } => println!("### {:?}", value),
-                                    _ => ()
-                                }
-                                value
-                            },
+                            StmtResult::Return { value } => value,
                             StmtResult::Nothing => vundefined_(),
                         }
                     }
