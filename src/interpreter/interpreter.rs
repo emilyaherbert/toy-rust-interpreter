@@ -20,7 +20,9 @@ impl Interpreter {
         }
     }
 
-    fn eval_stmts<'a>(&mut self, stmts: &[Stmt], env: &mut Env<'a>, arena: &'a Bump) -> StmtResult<'a> {
+    fn eval_stmts<'a>(
+        &mut self, stmts: &[Stmt], env: &mut Env<'a>, arena: &'a Bump,
+    ) -> StmtResult<'a> {
         let mut res = srnothing_();
         for s in stmts {
             let r = self.eval_stmt(s, env, arena);
@@ -29,9 +31,7 @@ impl Interpreter {
         res
     }
 
-    fn eval_stmt<'a>(
-        &mut self, stmt: &Stmt, env: &mut Env<'a>, arena: &'a Bump,
-    ) -> StmtResult<'a> {
+    fn eval_stmt<'a>(&mut self, stmt: &Stmt, env: &mut Env<'a>, arena: &'a Bump) -> StmtResult<'a> {
         match stmt {
             Stmt::Let { name, named } => {
                 let named = self.eval_exp(named, env, arena);

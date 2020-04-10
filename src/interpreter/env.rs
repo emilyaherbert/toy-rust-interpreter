@@ -16,9 +16,7 @@ impl<'a> Env<'a> {
     }
 
     pub fn new_with(elems: Vec<'a, (String<'a>, Value<'a>)>) -> Env<'a> {
-        Env {
-            elems: elems,
-        }
+        Env { elems }
     }
 
     pub fn add_value(&mut self, arena: &'a Bump, name: std::string::String, value: Value<'a>) {
