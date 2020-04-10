@@ -1,7 +1,5 @@
 use crate::types::stmt::Stmt;
 
-use std::collections::HashMap;
-
 #[derive(PartialEq, Debug, Clone)]
 pub enum Exp {
     Number {
@@ -15,13 +13,6 @@ pub enum Exp {
         e1: Box<Exp>,
         e2: Box<Exp>,
     },
-    Object {
-        properties: HashMap<String, Exp>,
-    },
-    Field {
-        e: Box<Exp>,
-        field: Box<Exp>,
-    },
     Array {
         exps: Vec<Exp>,
     },
@@ -29,7 +20,6 @@ pub enum Exp {
         e1: Box<Exp>,
         e2: Box<Exp>,
     },
-    // Function and FunApp are Exp's only because we are using ANF.
     Function {
         params: Vec<String>,
         body: Vec<Stmt>,
@@ -37,21 +27,12 @@ pub enum Exp {
     FunApp {
         fun: Box<Exp>,
         fun_args: Vec<Exp>,
-    },
+    }
 }
 
 #[derive(PartialEq, Debug, Clone)]
 pub enum Op2 {
     Add,
-    Sub,
-    StrictEq,
-    StrictNotEq,
-    GT,
-    LT,
-    GTE,
-    LTE,
-    And,
-    Or,
 }
 
 pub mod constructors {

@@ -233,7 +233,9 @@ mod tests {
                                         binop_(Op2::Add, identifier_("x"), number_(1.0)),
                                     ),
                                     log_(identifier_("x")),
-                                    return_(binop_(Op2::Add, identifier_("x"), identifier_("y"))),
+                                    let_("hi", binop_(Op2::Add, identifier_("x"), identifier_("y"))),
+                                    log_(identifier_("hi")),
+                                    return_(identifier_("hi")),
                                 ],
                             ),
                         ),
@@ -245,16 +247,16 @@ mod tests {
             let_("G", fun_app_(identifier_("makeAdder"), vec![number_(10.0)])),
             let_("foo", fun_app_(identifier_("F"), vec![number_(0.0)])),
             let_("bar", fun_app_(identifier_("G"), vec![number_(2.0)])),
-            let_("baz", fun_app_(identifier_("F"), vec![number_(1.0)])),
+            let_("baz", fun_app_(identifier_("F"), vec![number_(5.0)])),
             let_(
                 "timmy",
                 binop_(Op2::Add, identifier_("foo"), identifier_("bar")),
             ),
-            //return_(binop_(Op2::Add, identifier_("timmy"), identifier_("baz"))),
-            return_(identifier_("bar"))
+            return_(binop_(Op2::Add, identifier_("timmy"), identifier_("baz"))),
+            //return_(identifier_("bar"))
         ];
 
-        let expected_output = vnumber_(13.0);
+        let expected_output = vnumber_(41.0);
 
         let test_runner = TestRunner::new();
         let arena = Bump::new();
