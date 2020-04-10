@@ -19,13 +19,10 @@ pub enum Value<'a> {
         values: &'a RefCell<Vec<'a, Value<'a>>>,
     },
     Clos {
-        env: &'a Vec<'a, (String<'a>, Value<'a>)>,
+        env: &'a Vec<'a, (String<'a>, &'a Cell<Value<'a>>)>,
         params: &'a Vec<'a, String<'a>>,
         body: &'a Vec<'a, Stmt>,
-    },
-    Ref {
-        value: &'a Cell<Value<'a>>,
-    },
+    }
 }
 
 pub mod constructors {
@@ -49,7 +46,7 @@ pub mod constructors {
     }
 
     pub fn vclos_<'a>(
-        arena: &'a Bump, env: &'a Vec<'a, (String<'a>, Value<'a>)>,
+        arena: &'a Bump, env: &'a Vec<'a, (String<'a>, &'a Cell<Value<'a>>)>,
         params: std::vec::Vec<std::string::String>, body: std::vec::Vec<Stmt>,
     ) -> Value<'a> {
         let mut params2 = Vec::new_in(arena);
@@ -74,12 +71,6 @@ pub mod constructors {
         }
         Value::Array {
             values: arena.alloc(RefCell::new(values2)),
-        }
-    }
-
-    pub fn vref_<'a>(arena: &'a Bump, value: Value<'a>) -> Value<'a> {
-        Value::Ref {
-            value: arena.alloc(Cell::new(value)),
         }
     }
 }

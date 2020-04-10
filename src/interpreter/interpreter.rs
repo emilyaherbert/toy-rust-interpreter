@@ -37,7 +37,7 @@ impl Interpreter {
                 let named = self.eval_exp(named, env, arena);
                 match named {
                     Value::Array { values: _ } => env.add_value(arena, name.to_string(), named),
-                    other => env.add_value(arena, name.to_string(), vref_(arena, other)),
+                    other => env.add_value(arena, name.to_string(), other),
                 }
                 srnothing_()
             }
@@ -61,13 +61,7 @@ impl Interpreter {
     fn eval_exp<'a>(&mut self, exp: &Exp, env: &mut Env<'a>, arena: &'a Bump) -> Value<'a> {
         match exp {
             Exp::Number { value } => vnumber_(*value),
-            Exp::Identifier { name } => {
-                let v = env.get_value(name);
-                match v {
-                    Value::Ref { value } => value.get(),
-                    other => other,
-                }
-            }
+            Exp::Identifier { name } => env.get_value(name),
             Exp::BinOp { op, e1, e2 } => {
                 let e1 = self.eval_exp(e1, env, arena);
                 let e2 = self.eval_exp(e2, env, arena);
@@ -124,7 +118,7 @@ impl Interpreter {
                             .into_iter()
                             .zip(fun_args2.into_iter())
                             .for_each(|(p, a)| {
-                                fun_env.add_value(arena, p.to_string(), vref_(arena, a));
+                                fun_env.add_value(arena, p.to_string(), a);
                             });
                         match self.eval_stmts(body, &mut fun_env, arena) {
                             StmtResult::Return { value } => value,
