@@ -1,4 +1,3 @@
-use crate::interpreter::env::Env;
 use crate::types::stmt::Stmt;
 
 use bumpalo::collections::{String, Vec};
@@ -30,7 +29,6 @@ pub enum Value<'a> {
 }
 
 pub mod constructors {
-    use crate::interpreter::env::Env;
     use crate::interpreter::value::Value;
     use crate::types::stmt::Stmt;
 
@@ -51,8 +49,8 @@ pub mod constructors {
     }
 
     pub fn vclos_<'a>(
-        arena: &'a Bump, env: &'a Vec<'a, (String<'a>, Value<'a>)>, params: std::vec::Vec<std::string::String>,
-        body: std::vec::Vec<Stmt>,
+        arena: &'a Bump, env: &'a Vec<'a, (String<'a>, Value<'a>)>,
+        params: std::vec::Vec<std::string::String>, body: std::vec::Vec<Stmt>,
     ) -> Value<'a> {
         let mut params2 = Vec::new_in(arena);
         for p in params {

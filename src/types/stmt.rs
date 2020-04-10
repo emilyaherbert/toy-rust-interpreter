@@ -22,8 +22,8 @@ pub enum Stmt {
         value: Box<Exp>,
     },
     Log {
-        value: Box<Exp>
-    }
+        value: Box<Exp>,
+    },
 }
 
 #[derive(PartialEq, Debug, Clone)]
@@ -71,6 +71,8 @@ pub mod constructors {
     }
 
     pub fn log_(value: Exp) -> Stmt {
-        Stmt::Log { value: Box::new(value) }
+        Stmt::Log {
+            value: Box::new(value),
+        }
     }
 }

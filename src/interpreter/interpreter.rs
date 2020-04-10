@@ -50,11 +50,11 @@ impl Interpreter {
             Stmt::Return { value } => {
                 let value = self.eval_exp(value, env, arena);
                 (srreturn_(value), env)
-            },
+            }
             Stmt::Log { value } => {
                 println!("--> {:?} == {:?}", value, self.eval_exp(value, env, arena));
                 (srnothing_(), env)
-            },
+            }
             _ => unimplemented!(),
         }
     }
@@ -101,9 +101,12 @@ impl Interpreter {
                     _ => panic!("Expected array and index."),
                 }
             }
-            Exp::Function { params, body } => {
-                vclos_(arena, arena.alloc(env.elems.borrow().clone()), params.to_vec(), body.to_vec())
-            }
+            Exp::Function { params, body } => vclos_(
+                arena,
+                arena.alloc(env.elems.borrow().clone()),
+                params.to_vec(),
+                body.to_vec(),
+            ),
             Exp::FunApp { fun, fun_args } => {
                 let clos = self.eval_exp(fun, env, arena);
                 let mut fun_args2: Vec<Value> = vec![];
@@ -132,7 +135,6 @@ impl Interpreter {
                     _ => panic!("Expected env."),
                 }
             }
-            _ => unimplemented!(),
         }
     }
 

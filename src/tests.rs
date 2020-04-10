@@ -233,7 +233,10 @@ mod tests {
                                         binop_(Op2::Add, identifier_("x"), number_(1.0)),
                                     ),
                                     log_(identifier_("x")),
-                                    let_("hi", binop_(Op2::Add, identifier_("x"), identifier_("y"))),
+                                    let_(
+                                        "hi",
+                                        binop_(Op2::Add, identifier_("x"), identifier_("y")),
+                                    ),
                                     log_(identifier_("hi")),
                                     return_(identifier_("hi")),
                                 ],
@@ -253,7 +256,6 @@ mod tests {
                 binop_(Op2::Add, identifier_("foo"), identifier_("bar")),
             ),
             return_(binop_(Op2::Add, identifier_("timmy"), identifier_("baz"))),
-            //return_(identifier_("bar"))
         ];
 
         let expected_output = vnumber_(41.0);

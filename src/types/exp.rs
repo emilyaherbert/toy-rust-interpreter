@@ -27,7 +27,7 @@ pub enum Exp {
     FunApp {
         fun: Box<Exp>,
         fun_args: Vec<Exp>,
-    }
+    },
 }
 
 #[derive(PartialEq, Debug, Clone)]
