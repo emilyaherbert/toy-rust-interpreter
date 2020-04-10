@@ -39,7 +39,7 @@ impl Interpreter {
         match stmt {
             Stmt::Let { name, named } => {
                 let (named, mut env) = self.eval_exp(named, env, arena);
-                env.add_value(name, named);
+                env.add_value(arena, name.to_string(), named);
                 (srnothing_(), env)
             }
             Stmt::Set { lval, named } => {
@@ -119,7 +119,7 @@ impl Interpreter {
                             .into_iter()
                             .zip(fun_args2.into_iter())
                             .for_each(|(p, a)| {
-                                fun_env.add_value(p, a);
+                                fun_env.add_value(arena, p.to_string(), a);
                             });
                         match self.eval_stmts(body, fun_env, arena) {
                             StmtResult::Return { value } => (value, env),
@@ -138,7 +138,7 @@ impl Interpreter {
     ) -> Env<'a> {
         match lval {
             LVal::Identifier { name } => {
-                env.set_value(name, rval);
+                env.set_value(arena, name.to_string(), rval);
                 env
             }
             LVal::Index { e, index } => {
