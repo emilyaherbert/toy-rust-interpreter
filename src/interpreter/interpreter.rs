@@ -39,7 +39,10 @@ impl Interpreter {
         match stmt {
             Stmt::Let { name, named } => {
                 let (named, mut env) = self.eval_exp(named, env, arena);
-                env.add_value(arena, name.to_string(), named);
+                match named {
+                    Value::Array { values:_ } => env.add_value(arena, name.to_string(), named),
+                    other => env.add_value(arena, name.to_string(), vref_(arena, other))
+                }
                 (srnothing_(), env)
             }
             Stmt::Set { lval, named } => {
@@ -60,7 +63,13 @@ impl Interpreter {
     ) -> (Value<'a>, Env<'a>) {
         match exp {
             Exp::Number { value } => (vnumber_(*value), env),
-            Exp::Identifier { name } => (env.get_value(name), env),
+            Exp::Identifier { name } => {
+                let v = env.get_value(name);
+                match v {
+                    Value::Ref { value } => (value.get(), env),
+                    other => (other, env)
+                }
+            },
             Exp::BinOp { op, e1, e2 } => {
                 let (e1, env1) = self.eval_exp(e1, env, arena);
                 let (e2, env2) = self.eval_exp(e2, env1, arena);
@@ -119,7 +128,7 @@ impl Interpreter {
                             .into_iter()
                             .zip(fun_args2.into_iter())
                             .for_each(|(p, a)| {
-                                fun_env.add_value(arena, p.to_string(), a);
+                                fun_env.add_value(arena, p.to_string(), vref_(arena, a));
                             });
                         match self.eval_stmts(body, fun_env, arena) {
                             StmtResult::Return { value } => (value, env),
@@ -138,7 +147,7 @@ impl Interpreter {
     ) -> Env<'a> {
         match lval {
             LVal::Identifier { name } => {
-                env.set_value(arena, name.to_string(), rval);
+                env.set_value(name.to_string(), rval);
                 env
             }
             LVal::Index { e, index } => {

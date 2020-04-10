@@ -249,7 +249,7 @@ mod tests {
                 "timmy",
                 binop_(Op2::Add, identifier_("foo"), identifier_("bar")),
             ),
-            return_(binop_(Op2::Add, identifier_("bar"), identifier_("baz"))),
+            return_(binop_(Op2::Add, identifier_("timmy"), identifier_("baz"))),
         ];
 
         let expected_output = vnumber_(37.0);

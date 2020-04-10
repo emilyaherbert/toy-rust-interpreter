@@ -6,7 +6,7 @@ use std::cell::RefCell;
 
 #[derive(PartialEq, Debug, Clone, Copy)]
 pub struct Env<'a> {
-    elems: &'a RefCell<Vec<'a, (String<'a>, Value<'a>)>>
+    pub elems: &'a RefCell<Vec<'a, (String<'a>, Value<'a>)>>
 }
 
 impl<'a> Env<'a> {
@@ -20,22 +20,25 @@ impl<'a> Env<'a> {
         self.elems.borrow_mut().push((String::from_str_in(&name, arena), value));
     }
 
-    pub fn set_value(&mut self, arena: &'a Bump, name: std::string::String, value: Value<'a>) {
-        self.elems.borrow_mut().push((String::from_str_in(&name, arena), value));
+    pub fn set_value(&mut self, name: std::string::String, value: Value<'a>) {
+        for (k, v) in self.elems.borrow().iter() {
+            if k.clone() == name {
+                match v {
+                    Value::Ref { value: cell } => cell.set(value),
+                    other => panic!("Expected ref, got {:?}", other)
+                }
+                return;
+            }
+        }
+        panic!("Did not find match!!!!");
     }
 
     pub fn get_value(&self, key: &str) -> Value<'a> {
-        let vec = self.elems.borrow();
-        for (k, v) in vec.iter() {
+        for (k, v) in self.elems.borrow().iter() {
             if *k == key {
                 return *v;
             }
         }
         return Value::Undefined { };
-    }
-
-    pub fn borrow_mut_value(&mut self, name: &str) -> &mut Value<'a> {
-        unimplemented!()
-        //self.elems.get_mut(name).expect("Name not found.")
     }
 }

@@ -30,14 +30,13 @@ pub enum Value<'a> {
 }
 
 pub mod constructors {
-    //use crate::interpreter::state::Env;
     use crate::interpreter::env::Env;
     use crate::interpreter::value::Value;
     use crate::types::stmt::Stmt;
 
     use bumpalo::collections::{Vec, String};
     use bumpalo::Bump;
-    use std::cell::RefCell;
+    use std::cell::{RefCell, Cell};
 
     pub fn vundefined_<'a>() -> Value<'a> {
         Value::Undefined {}
@@ -76,6 +75,12 @@ pub mod constructors {
         }
         Value::Array {
             values: arena.alloc(RefCell::new(values2)),
+        }
+    }
+
+    pub fn vref_<'a>(arena: &'a Bump, value: Value<'a>) -> Value<'a> {
+        Value::Ref {
+            value: arena.alloc(Cell::new(value))
         }
     }
 }
