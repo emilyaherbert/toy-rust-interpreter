@@ -32,8 +32,9 @@ impl Interpreter {
     }
 
     fn eval_stmt<'a>(
-        &mut self, stmt: &Stmt, mut env: Env<'a>, arena: &'a Bump,
+        &mut self, stmt: &Stmt, env: Env<'a>, arena: &'a Bump,
     ) -> (StmtResult<'a>, Env<'a>) {
+        let mut env = env;
         match stmt {
             Stmt::Let { name, named } => {
                 let named = self.eval_exp(named, env, arena);
@@ -51,7 +52,11 @@ impl Interpreter {
             Stmt::Return { value } => {
                 let value = self.eval_exp(value, env, arena);
                 (srreturn_(value), env)
-            }
+            },
+            Stmt::Log { value } => {
+                println!("--> {:?}", self.eval_exp(value, env, arena));
+                (srnothing_(), env)
+            },
             _ => unimplemented!(),
         }
     }

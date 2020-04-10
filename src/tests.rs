@@ -232,6 +232,7 @@ mod tests {
                                         },
                                         binop_(Op2::Add, identifier_("x"), number_(1.0)),
                                     ),
+                                    log_(identifier_("x")),
                                     return_(binop_(Op2::Add, identifier_("x"), identifier_("y"))),
                                 ],
                             ),
@@ -249,10 +250,11 @@ mod tests {
                 "timmy",
                 binop_(Op2::Add, identifier_("foo"), identifier_("bar")),
             ),
-            return_(binop_(Op2::Add, identifier_("timmy"), identifier_("baz"))),
+            //return_(binop_(Op2::Add, identifier_("timmy"), identifier_("baz"))),
+            return_(identifier_("bar"))
         ];
 
-        let expected_output = vnumber_(37.0);
+        let expected_output = vnumber_(13.0);
 
         let test_runner = TestRunner::new();
         let arena = Bump::new();
